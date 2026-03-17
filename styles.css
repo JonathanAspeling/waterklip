@@ -357,26 +357,186 @@ h1, h2, h3, h4 {
   z-index: 0;
 }
 
-/* Animated floating particles (water bubbles) */
-.hero-particles {
+/* ---- WATER DROP RIPPLE ANIMATION ---- */
+
+/*
+ * Layout: the canvas sits over the entire hero at z-index 1.
+ * Everything inside is absolutely centered using the anchor
+ * point (.ripple-surface) which marks the water-surface impact
+ * spot at roughly 55% down the hero.
+ *
+ * Sequence (looped every ~4 s):
+ *   0.00 s  drop appears above surface, begins to fall
+ *   0.60 s  drop reaches surface (impact), splash forks upward
+ *   0.70 s  rings start expanding outward from impact point
+ *   2.80 s  rings fully faded — brief pause
+ *   4.00 s  loop restarts
+ */
+
+.hero-ripple-canvas {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  /* Anchor the coordinate system to the hero centre */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.particle {
+/* ---------- THE FALLING DROP ---------- */
+.ripple-drop {
   position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  animation: float-up linear infinite;
+  /* Start above the surface anchor; surface is ~55% down, so
+     offset upward by ~22vh from center */
+  top: calc(50% - 22vh);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 14px;
+  /* Teardrop shape: round top, pointed bottom */
+  background: radial-gradient(ellipse at 40% 35%, rgba(255,255,255,0.85) 0%, rgba(163,213,255,0.75) 60%, rgba(46,134,171,0.5) 100%);
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  box-shadow: 0 0 6px 1px rgba(163, 213, 255, 0.4);
+  animation: drop-fall 4s cubic-bezier(0.4, 0, 1, 1) infinite;
+  transform-origin: top center;
 }
 
-@keyframes float-up {
-  0%   { transform: translateY(0) translateX(0) scale(1);   opacity: 0.6; }
-  50%  { transform: translateY(-40vh) translateX(20px) scale(1.1); opacity: 0.3; }
-  100% { transform: translateY(-90vh) translateX(-10px) scale(0.8); opacity: 0; }
+@keyframes drop-fall {
+  /* Hang briefly at top */
+  0%   {
+    top: calc(50% - 22vh);
+    transform: translateX(-50%) scaleY(1) scaleX(1);
+    opacity: 0;
+  }
+  5%   { opacity: 1; }
+  /* Accelerate downward — drop stretches slightly as it speeds up */
+  55%  {
+    top: calc(50% - 22vh);
+    transform: translateX(-50%) scaleY(1) scaleX(1);
+    opacity: 1;
+  }
+  /* Impact: drop flattens into surface */
+  65%  {
+    top: calc(50% + 5vh);
+    transform: translateX(-50%) scaleY(0.2) scaleX(1.8);
+    opacity: 0.6;
+  }
+  /* Drop absorbed — vanishes */
+  70%  {
+    top: calc(50% + 5vh);
+    transform: translateX(-50%) scaleY(0) scaleX(2.5);
+    opacity: 0;
+  }
+  100% {
+    top: calc(50% + 5vh);
+    transform: translateX(-50%) scaleY(0) scaleX(2.5);
+    opacity: 0;
+  }
 }
+
+/* ---------- IMPACT SURFACE ANCHOR ---------- */
+.ripple-surface {
+  position: absolute;
+  top: calc(50% + 5vh);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+}
+
+/* ---------- EXPANDING RINGS ---------- */
+/*
+ * Each ring is a thin ellipse (horizontal oval to mimic perspective
+ * on a flat water surface). They scale out from 0 and fade.
+ * Each ring is staggered by ~0.18 s after impact (which fires at ~65%
+ * of the 4 s cycle = ~2.6 s into the animation delay).
+ */
+.ripple-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(163, 213, 255, 0.7);
+  transform: translate(-50%, -50%) scale(0);
+  /* Width/height set per ring below; perspective squish via scaleY in keyframe */
+  animation: ring-expand 4s ease-out infinite;
+  box-shadow: 0 0 6px rgba(46, 134, 171, 0.2);
+}
+
+/* Base ring sizes — rings grow to different max radii */
+.ripple-ring--1 { width: 60px;  height: 24px;  animation-delay: 0s; }
+.ripple-ring--2 { width: 140px; height: 54px;  animation-delay: 0.18s; }
+.ripple-ring--3 { width: 240px; height: 92px;  animation-delay: 0.36s; }
+.ripple-ring--4 { width: 360px; height: 136px; animation-delay: 0.54s; }
+
+@keyframes ring-expand {
+  /* Wait for impact at 65% of the cycle (roughly) */
+  0%,  62% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  /* Ring snaps into existence at impact */
+  65% {
+    transform: translate(-50%, -50%) scale(0.05);
+    opacity: 0.9;
+  }
+  /* Expand outward */
+  72% { opacity: 0.75; }
+  /* Outer rings linger a bit longer */
+  90% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ---------- CROWN SPLASH (two arcs from impact) ---------- */
+/*
+ * Two small teardrop shapes shoot upward-left and upward-right
+ * at impact, mimicking the crown splash of a real water drop.
+ */
+.ripple-splash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 10px;
+  background: radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.9) 0%, rgba(163,213,255,0.6) 100%);
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+  animation: splash 4s ease-out infinite;
+  transform-origin: bottom center;
+}
+
+.ripple-splash--l { transform: translate(-50%, -50%) rotate(-35deg); animation-delay: 0s; }
+.ripple-splash--r { transform: translate(-50%, -50%) rotate(35deg);  animation-delay: 0s; }
+
+@keyframes splash {
+  0%,  63% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot, -35deg)) translateY(0) scaleY(0.5);
+  }
+  65% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--rot, -35deg)) translateY(0) scaleY(1);
+  }
+  80% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot, -35deg)) translateY(-28px) scaleY(1.3);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--rot, -35deg)) translateY(-28px) scaleY(0);
+  }
+}
+
+/* Correct the rotation var for each side using inline style would
+   require JS; instead use sibling selectors to override */
+.ripple-splash--l { --rot: -35deg; }
+.ripple-splash--r { --rot:  35deg; }
 
 /* Namaqualand flower silhouette band at the bottom */
 .hero-flower-band {

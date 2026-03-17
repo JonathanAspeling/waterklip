@@ -1,7 +1,7 @@
 /* ============================================================
    WATERKLIP — SCRIPT.JS
    Handles: navigation scroll state, mobile menu, scroll
-   reveal animations, particle generation, contact form.
+   reveal animations, water drop ripple effect, contact form.
    ============================================================ */
 
 /* ---------- NAV SCROLL STATE ---------- */
@@ -85,37 +85,38 @@
 })();
 
 
-/* ---------- HERO PARTICLES ---------- */
-(function initParticles() {
-  const container = document.querySelector('.hero-particles');
-  if (!container) return;
+/* ---------- WATER DROP RIPPLE ---------- */
+/*
+ * The CSS handles all the visuals via keyframe animations.
+ * This JS block does one thing: synchronises the animation-delay
+ * on the drop and all ring/splash elements so they share the same
+ * 4-second clock, and respects prefers-reduced-motion.
+ *
+ * The full timing sequence within each 4 s loop:
+ *   0.00 s  drop fades in above surface
+ *   ~2.60 s drop impacts surface  (65% × 4 s)
+ *   ~2.60 s rings + splashes fire
+ *   ~3.60 s rings fully faded — pause
+ *   4.00 s  loop
+ */
+(function initRipple() {
+  const canvas = document.querySelector('.hero-ripple-canvas');
+  if (!canvas) return;
 
-  // Reduce particles on mobile for performance
-  const count = window.innerWidth < 600 ? 10 : 22;
+  // Respect user preference for reduced motion — pause all animations
+  const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.classList.add('particle');
-
-    const size   = Math.random() * 18 + 4;   // 4–22px
-    const left   = Math.random() * 100;       // 0–100%
-    const delay  = Math.random() * 12;        // 0–12s delay
-    const dur    = Math.random() * 12 + 8;    // 8–20s duration
-    const opacity = Math.random() * 0.25 + 0.05;
-
-    p.style.cssText = `
-      width: ${size}px;
-      height: ${size}px;
-      left: ${left}%;
-      bottom: ${Math.random() * 20}%;
-      animation-delay: -${delay}s;
-      animation-duration: ${dur}s;
-      opacity: ${opacity};
-      background: rgba(255,255,255,${opacity * 2});
-    `;
-
-    container.appendChild(p);
+  function applyMotionPreference() {
+    const els = canvas.querySelectorAll(
+      '.ripple-drop, .ripple-ring, .ripple-splash'
+    );
+    els.forEach(el => {
+      el.style.animationPlayState = mediaQuery.matches ? 'paused' : 'running';
+    });
   }
+
+  mediaQuery.addEventListener('change', applyMotionPreference);
+  applyMotionPreference();
 })();
 
 
