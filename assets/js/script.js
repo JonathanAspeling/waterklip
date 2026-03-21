@@ -4,6 +4,15 @@
    reveal animations, water drop ripple effect, contact form.
    ============================================================ */
 
+/* ---------- HERO VIDEO AUTOPLAY ---------- */
+(function initHeroVideo() {
+  document.querySelectorAll('.hero-video').forEach(function(video) {
+    video.playbackRate = 0.5;
+    video.play().catch(function() {});
+  });
+})();
+
+
 /* ---------- NAV SCROLL STATE ---------- */
 (function initNav() {
   const nav = document.querySelector('.nav');
@@ -157,43 +166,6 @@
 })();
 
 
-/* ---------- CONTACT FORM ---------- */
-(function initContactForm() {
-  const form    = document.getElementById('contact-form');
-  const success = document.getElementById('form-success');
-  if (!form) return;
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    // Simple client-side validation
-    const name    = form.querySelector('[name="naam"]');
-    const email   = form.querySelector('[name="epos"]');
-    const message = form.querySelector('[name="boodskap"]');
-
-    if (!name.value.trim() || !email.value.trim() || !message.value.trim()) {
-      // Shake the submit button as feedback
-      const btn = form.querySelector('.btn-submit');
-      btn.style.animation = 'none';
-      btn.offsetHeight; // reflow
-      btn.style.animation = 'shake 0.4s ease';
-      return;
-    }
-
-    // Simulate sending (in production, wire up to a form backend / email service)
-    const submitBtn = form.querySelector('.btn-submit');
-    submitBtn.textContent = 'Besig...';
-    submitBtn.disabled = true;
-
-    setTimeout(() => {
-      form.style.display = 'none';
-      if (success) {
-        success.style.display = 'block';
-      }
-    }, 1000);
-  });
-})();
-
 
 /* ---------- SMOOTH SCROLL FOR ANCHOR LINKS ---------- */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -208,17 +180,3 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 
-/* ---------- SHAKE KEYFRAME (injected at runtime) ---------- */
-(function addShakeKeyframe() {
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%       { transform: translateX(-6px); }
-      40%       { transform: translateX(6px); }
-      60%       { transform: translateX(-4px); }
-      80%       { transform: translateX(4px); }
-    }
-  `;
-  document.head.appendChild(style);
-})();
