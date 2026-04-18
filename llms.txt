@@ -1,0 +1,31 @@
+# Waterklip
+
+> Suiwer Water, Ryk aan Minerale — Purified, mineral-enriched drinking water from Bellville, Cape Town, South Africa.
+
+## About
+
+Waterklip is a South African water purification and bottling business based in Oakdale, Bellville (Cape Town). We produce purified drinking water that is enriched with essential minerals: Calcium, Magnesium, Potassium, Sodium, Silica, and Bicarbonate.
+
+We also offer a personalised/branded bottle label service for events, businesses, and gifts.
+
+## Website
+
+- URL: https://waterklip.co.za
+- Language: Afrikaans (South Africa)
+- Type: Single-page website
+
+## Page Sections
+
+- **Tuis (Home)** — Hero section introducing the brand
+- **Oor Ons (About Us)** — Brand story and values
+- **Produk (Product)** — 4-step water purification process
+- **Hoekom Waterklip (Why Waterklip)** — Six key benefits of our water
+- **Persoonlike Bottels (Personalised Bottles)** — Custom-labelled bottle service
+- **Kontak (Contact)** — Contact details and social media links
+
+## Contact
+
+- Phone: +27 74 581 8176
+- Email: waterklipwater@gmail.com
+- Address: Shop 6, 79 Clyde Street, Oakdale, Bellville, 7530, South Africa
+- Facebook: https://www.facebook.com/WATERKLIPWATER/
